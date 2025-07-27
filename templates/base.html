@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Alumni Portal{% endblock %}</title>
+     
+  <!-- Global styles -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="icon" href="{{ url_for('static', filename='images/logo_icon.jpg') }}">
+     
+</head>
+<body class="{{ 'dark-mode' if session.get('darkMode') == 'enabled' else '' }}">
+     
+  <!-- Navigation -->
+  <nav>
+    <div class="nav-container">
+      <div class="logo">
+        <img
+          src="{{ url_for('static', filename='images/logo.jpg') }}"
+          alt="BHSMA Logo"
+          class="site-logo"
+        >
+        <div class="logo-text">BOSA</div>
+      </div>
+             
+      <!-- Mobile menu button - Enhanced -->
+      <button class="mobile-menu-toggle" id="mobile-toggle" aria-label="Toggle mobile menu">
+        <span class="hamburger"></span>
+        <span class="hamburger"></span>
+        <span class="hamburger"></span>
+      </button>
+
+      <ul class="nav-links" id="nav-links">
+        {% if current_user %}
+          <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+          <li><a href="{{ url_for('news') }}">News</a></li>
+          <li><a href="{{ url_for('donate') }}">Donate</a></li>
+          <li><a href="{{ url_for('search') }}">Search Users</a></li>
+          {% if is_admin %}
+            <li><a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a></li>
+          {% endif %}
+          <li><a href="{{ url_for('logout') }}">Logout</a></li>
+        {% else %}
+          <li><a href="{{ url_for('home') }}">Home</a></li>
+          <li><a href="{{ url_for('register') }}">Register</a></li>
+          <li><a href="{{ url_for('login') }}">Login</a></li>
+        {% endif %}
+      </ul>
+             
+      <button class="dark-mode-toggle" onclick="toggleDarkMode()">
+        <span id="mode-icon">🌙</span>
+        <span id="mode-text">Dark</span>
+      </button>
+    </div>
+  </nav>
+     
+  <!-- Flash messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-messages">
+        {% for category, msg in messages %}
+          <div class="alert alert-{{ category }} auto-hide" id="alert-{{ loop.index }}">
+            {{ msg }}
+            <button class="alert-close" onclick="this.parentElement.style.display='none'">&times;</button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+     
+  <!-- Page content -->
+  <main>
+    <div>
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+     
+  <!-- Updated Footer - keeping same structure, just better styling -->
+  <footer id="modern-footer">
+    <div class="footer-container">
+      <div class="footer-content-grid">
+        <div class="footer-section">
+          <div class="footer-brand">
+            <img
+              src="{{ url_for('static', filename='images/logo.jpg') }}"
+              alt="BOSA Logo"
+              class="footer-logo"
+            >
+            <div class="footer-brand-text">BOSA</div>
+          </div>
+          <p class="footer-desc">Connecting Baptist Old Students worldwide. Building lasting relationships and fostering professional growth through our alumni network.</p>
+          <div class="footer-social">
+            <a href="#" class="social-btn">📘</a>
+            <a href="#" class="social-btn">🐦</a>
+            <a href="#" class="social-btn">💼</a>
+            <a href="#" class="social-btn">📷</a>
+          </div>
+        </div>
+
+        <div class="footer-section">
+          <h5>Quick Links</h5>
+          <ul>
+            {% if current_user %}
+              <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+              <li><a href="{{ url_for('news') }}">News & Updates</a></li>
+              <li><a href="{{ url_for('donate') }}">Donate</a></li>
+              <li><a href="{{ url_for('search') }}">Find Alumni</a></li>
+            {% else %}
+              <li><a href="{{ url_for('home') }}">Home</a></li>
+              <li><a href="{{ url_for('register') }}">Join Us</a></li>
+              <li><a href="{{ url_for('login') }}">Login</a></li>
+            {% endif %}
+          </ul>
+        </div>
+
+        <div class="footer-section">
+          <h5>Connect</h5>
+          <ul>
+            <li><a href="#">About Us</a></li>
+            <li><a href="#">Contact</a></li>
+            <li><a href="#">Events</a></li>
+            <li><a href="#">Alumni Directory</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-section">
+          <h5>Contact Info</h5>
+          <div class="contact-details">
+            <p>📍 Baptist High School Alumni Association</p>
+            <p>✉️ info@bosa.org</p>
+            <p>📞 +234 (0) 123 456 7890</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; 2024 Baptist Old Students Association. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+     
+  <!-- Global scripts -->
+  <script src="{{ url_for('static', filename='script.js') }}"defer></script>
+       
+</body>
+</html>

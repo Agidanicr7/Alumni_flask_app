@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - Baptist High School Makurdi Alumni{% endblock %}
+
+{% block content %}
+<div class="admin-dashboard">
+
+  <!-- Admin Header -->
+  <div class="admin-header card mb-4">
+    <div class="admin-title">
+      <div class="title-content">
+        <i class="fas fa-shield-alt"></i>
+        <div>
+          <h1>Admin Dashboard</h1>
+          <p>Manage the Baptist High School Makurdi Alumni Network</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Statistics Cards -->
+  <div class="stats-overview grid grid-2 mb-4">
+    <div class="stat-card card">
+      <div class="stat-header">
+        <div class="stat-icon users"><i class="fas fa-users"></i></div>
+        <div class="stat-details">
+          <h3>{{ stats.total_users }}</h3>
+          <p>Total Alumni</p>
+          <small class="stat-trend"><i class="fas fa-arrow-up"></i> +{{ stats.recent_registrations }} this month</small>
+        </div>
+      </div>
+    </div>
+    <!-- Repeat for total_news, total_events, administrators -->
+  </div>
+
+  <!-- Management Tabs -->
+  <div class="management-tabs">
+    <div class="tab-buttons">
+      <button class="tab-btn active" data-tab="users"><i class="fas fa-users"></i> Manage Alumni</button>
+      <button class="tab-btn" data-tab="news"><i class="fas fa-newspaper"></i> News</button>
+      <button class="tab-btn" data-tab="events"><i class="fas fa-calendar-alt"></i> Events</button>
+    </div>
+
+    <!-- Users Tab -->
+    <div id="users-tab" class="tab-content active">
+      <div class="section-header">
+        <h2><i class="fas fa-users"></i> Alumni Management</h2>
+        <input type="text" id="userSearch" placeholder="Search alumni…" class="search-input">
+      </div>
+      <div class="table-container">
+        <table id="usersTable">
+          <thead>
+            <tr>
+              <th>Alumni</th>
+              <th>Email</th>
+              <th>Grad Year</th>
+              <th>Location</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for user in users %}
+            <tr class="user-row">
+              <td>
+                <div class="user-info">
+                  <img src="{{ url_for('static', filename='profile_pics/' ~ user.profile_pic) }}" alt="Profile Picture" class="table-profile-pic">
+                  <div>
+                    <strong>{{ user.fullname }}</strong>
+                    <small>Joined {{ user.created_at.strftime('%b %Y') }}</small>
+                  </div>
+                </div>
+              </td>
+              <td>{{ user.email }}</td>
+              <td>{{ user.graduation_year or 'N/A' }}</td>
+              <td>{{ user.location or 'Not set' }}</td>
+              <td>
+                {% if user.is_admin %}
+                  <span class="status-badge admin">Administrator</span>
+                {% else %}
+                  <span class="status-badge member">Member</span>
+                {% endif %}
+              </td>
+              <td>
+                <div class="action-buttons">
+                  {% if not user.is_admin %}
+                  <form method="POST" action="{{ url_for('promote_user', user_id=user.id) }}">
+                    <button type="submit" class="btn-small btn-success">
+                      <i class="fas fa-user-shield"></i> Promote
+                    </button>
+                  </form>
+                  {% endif %}
+                  {% if user.id != current_user.id %}
+                  <form method="POST" action="{{ url_for('delete_user', user_id=user.id) }}"
+                        onsubmit="return confirm('Delete {{ user.fullname }}?')">
+                    <button type="submit" class="btn-small btn-danger">
+                      <i class="fas fa-trash"></i> Delete
+                    </button>
+                  </form>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- News Tab -->
+   <div id="news-tab" class="tab-content">
+  <h2><i class="fas fa-newspaper"></i> News Management</h2>
+
+  <!-- Add News Form -->
+  <form method="POST" action="{{ url_for('post_news') }}" class="card p-3 mb-4">
+    <h4>Add News Article</h4>
+    <div class="form-group">
+      <label for="news-title">Title</label>
+      <input type="text" id="news-title" name="news_title" class="form-control" required>
+    </div>
+    <div class="form-group">
+      <label for="news-content">Content</label>
+      <textarea id="news-content" name="news_content" class="form-control" rows="4" required></textarea>
+    </div>
+    <button style="background-color: var(--primary-color);" type="submit" class="btn btn-primary mt-2">Post News</button>
+  </form>
+
+  <!-- Existing News List -->
+  {% if news %}
+    <ul class="news-list">
+      {% for item in news %}
+        <li class="news-item card mb-3">
+          <h4>{{ item.title }}</h4>
+          <small class="text-muted">{{ item.created_at.strftime('%b %d, %Y') }}</small>
+          <p>{{ item.content[:150] }}...</p>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No news articles posted yet.</p>
+  {% endif %}
+</div>
+
+<!-- Events Tab -->
+
+<div id="events-tab" class="tab-content">
+  <h2><i class="fas fa-calendar-alt"></i> Events Management</h2>
+
+  <!-- Button to go to Create Event Page -->
+  <a href="{{ url_for('create_event') }}" class="btn btn-primary mb-3">
+    <i class="fas fa-plus"></i> New Event
+  </a>
+
+  {% if events %}
+    <ul class="event-list">
+      {% for event in events %}
+        <li class="event-item card mb-3">
+          <h4>{{ event.title }}</h4>
+          <small class="text-muted">{{ event.date.strftime('%b %d, %Y') }}</small>
+          <p>{{ event.description[:150] }}...</p>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No events posted yet.</p>
+  {% endif %}
+</div>
+
+ 
+  
+</div>
+
+
+  </div>
+</div>
+{% endblock %}

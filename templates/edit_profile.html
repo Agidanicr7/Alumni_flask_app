@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Profile{% endblock %}
+
+{% block content %}
+<div class="form-section card mb-4">
+  <h3><i class="fas fa-user-edit"></i> Edit Profile</h3>
+
+  <form method="POST" enctype="multipart/form-data" class="admin-form">
+    <!-- Full Name -->
+    <div class="form-group">
+      <label for="name">Full Name</label>
+      <input
+        id="name"
+        type="text"
+        name="name"
+        value="{{ user.fullname }}"
+        required
+      />
+    </div>
+
+    <!-- Graduation Year -->
+    <div class="form-group">
+      <label for="graduation_year">Year of Graduation</label>
+      <select id="graduation_year" name="graduation_year" required>
+        {% for year in range(2014, 2026) %}
+          <option value="{{ year }}"
+            {% if user.graduation_year == year|string %}selected{% endif %}
+          >{{ year }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Phone Number -->
+    <div class="form-group">
+      <label for="phone">Phone Number (+234)</label>
+      <input
+        id="phone"
+        type="text"
+        name="phone"
+        pattern="[0-9]{10}"
+        maxlength="10"
+        placeholder="XXXXXXXXXX"
+        value="{{ user.phone[4:] if user.phone and user.phone.startswith('+234') else '' }}"
+        required
+      />
+      <small>Enter 10 digits after +234</small>
+    </div>
+
+    <!-- Country & City -->
+    <div class="form-group">
+      <label for="country">Country</label>
+      <select id="country" name="country" required>
+        <option value="Nigeria" {% if 'Nigeria' in (user.location or '') %}selected{% endif %}>Nigeria</option>
+        <option value="Ghana"   {% if 'Ghana'   in (user.location or '') %}selected{% endif %}>Ghana</option>
+        <option value="Kenya"   {% if 'Kenya'   in (user.location or '') %}selected{% endif %}>Kenya</option>
+        <!-- Add more as needed -->
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="city">City</label>
+      <select id="city" name="city" required>
+        <option value="Lagos"         {% if 'Lagos'         in (user.location or '') %}selected{% endif %}>Lagos</option>
+        <option value="Abuja"         {% if 'Abuja'         in (user.location or '') %}selected{% endif %}>Abuja</option>
+        <option value="Port Harcourt"{% if 'Port Harcourt' in (user.location or '') %}selected{% endif %}>Port Harcourt</option>
+        <!-- Add more as needed -->
+      </select>
+    </div>
+
+    <!-- Bio -->
+    <div class="form-group">
+      <label for="bio">Bio</label>
+      <textarea
+        id="bio"
+        name="bio"
+        rows="4"
+        placeholder="Tell us about yourself…"
+      >{{ user.bio or '' }}</textarea>
+    </div>
+
+    <!-- Profile Picture -->
+    <div class="form-group">
+      <label for="profile_pic">Update Profile Picture</label>
+      <input
+        id="profile_pic"
+        type="file"
+        name="profile_pic"
+        accept="image/*"
+      />
+    </div>
+
+    <!-- Submit -->
+    <button type="submit" class="btn btn-primary btn-large">
+      <i class="fas fa-save"></i> Save Changes
+    </button>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ user.fullname }}{% endblock %}
+
+{% block content %}
+<div class="profile-section">
+  <div class="card profile-card mb-4">
+    <div class="card-body text-center">
+      <img
+        src="{{ url_for('static', filename='profile_pics/' ~ user.profile_pic) }}"
+        alt="Profile Picture of {{ user.fullname }}"
+        class="profile-pic mb-3"
+      >
+      <h2>{{ user.fullname }}</h2>
+    </div>
+    <div class="card-body">
+      <ul class="profile-list">
+        <li><strong>Email:</strong> {{ user.email }}</li>
+        <li><strong>Phone:</strong> {{ user.phone or 'N/A' }}</li>
+        {% if user.graduation_year %}
+        <li><strong>Graduation Year:</strong> {{ user.graduation_year }}</li>
+        {% endif %}
+        {% if user.location %}
+        <li><strong>Location:</strong> {{ user.location }}</li>
+        {% endif %}
+        {% if user.bio %}
+        <li><strong>Bio:</strong> {{ user.bio }}</li>
+        {% endif %}
+      </ul>
+      <div class="profile-actions text-center">
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary btn-large">
+          <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

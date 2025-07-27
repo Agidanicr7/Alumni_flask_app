@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}News & Updates{% endblock %}
+
+{% block content %}
+<div class="news" id="news">
+  <div class="section-title text-center">
+    <h2>Latest News</h2>
+    <p>Stay informed about what's happening in our alumni community</p>
+  </div>
+
+  <div class="news-grid">
+    {% for item in news %}
+    <article class="news-card scroll-animate">
+      <div class="news-content">
+        <h3>{{ item.title }}</h3>
+        <p>
+          {{ item.content[:200] }}{% if item.content|length > 200 %}…{% endif %}
+        </p>
+      </div>
+      <div class="news-meta" style="padding:0 1.5rem 1rem;">
+        <small class="news-date">
+          <i class="fas fa-calendar-alt"></i>
+          {{ item.date_posted.strftime('%B %d, %Y') }}
+        </small>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

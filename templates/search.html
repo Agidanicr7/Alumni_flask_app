@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Search Users{% endblock %}
+
+{% block content %}
+<div class="form-section card mb-4">
+  <h3><i class="fas fa-search"></i> Search Users</h3>
+
+  <form method="get" action="{{ url_for('search') }}" class="admin-form">
+    <div class="form-group">
+      <label for="query">Name</label>
+      <input
+        id="query"
+        type="text"
+        name="query"
+        placeholder="Search by name"
+        value="{{ query }}"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="graduation_year">Graduation Year</label>
+      <select id="graduation_year" name="graduation_year">
+        <option value="">All Years</option>
+        {% for year in years %}
+        <option value="{{ year }}" {% if graduation_year == year %}selected{% endif %}>
+          {{ year }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="location">Location</label>
+      <input
+        id="location"
+        type="text"
+        name="location"
+        placeholder="Location (e.g. Lagos, Nigeria)"
+        value="{{ location }}"
+      />
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-large">
+      <i class="fas fa-search"></i> Search
+    </button>
+  </form>
+</div>
+
+<div class="result-list">
+  {% if users %}
+    {% for user in users %}
+    <div class="card mb-3">
+      <div class="card-body">
+        <div class="user-info">
+          <img
+            src="{{ url_for('static', filename='profile_pics/' ~ user.profile_pic) }}"
+            alt="{{ user.fullname }}"
+            class="table-profile-pic"
+          >
+          <div class="user-details">
+            <a href="{{ url_for('user_profile', user_id=user.id) }}" class="result-link">
+              <strong>{{ user.fullname }}</strong>
+            </a>
+            <small>{{ user.graduation_year or 'N/A' }}, {{ user.location or 'Not set' }}</small>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <p class="text-center text-muted">No users found.</p>
+  {% endif %}
+</div>
+{% endblock %}

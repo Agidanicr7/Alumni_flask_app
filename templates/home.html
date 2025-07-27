@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+
+{% block title %}Baptist High School Makurdi – Alumni Network{% endblock %}
+
+{% block content %}
+<div class="home-container">
+
+  <!-- Hero Section -->
+  <section class="hero" id="home">
+    <div class="floating-element"></div>
+    <div class="floating-element"></div>
+    <div class="floating-element"></div>
+
+    <div class="hero-content">
+      <div class="hero-badge">
+        <i class="fas fa-graduation-cap"></i>
+        <span>Est. 2022</span>
+      </div>
+      <h1 class="hero-title">
+        Welcome to <span class="highlight">Baptist High School</span><br>
+        Makurdi Alumni Network
+      </h1>
+      <p class="hero-description">
+        Connect with fellow alumni, stay updated with school news, and be part of our 
+        growing community. Together we build legacies that last forever.
+      </p>
+      <div class="cta-buttons">
+        <a href="{{ url_for('register') }}" class="btn btn-primary btn-large">
+          <i class="fas fa-user-plus"></i> Join Us
+        </a>
+        <a href="{{ url_for('login') }}" class="btn btn-secondary btn-large">
+          <i class="fas fa-sign-in-alt"></i> Alumni Login
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features" id="about">
+    <div class="container">
+      <div class="section-title text-center">
+        <h2>Why Join Our Alumni Network?</h2>
+        <p>Discover the benefits of staying connected with your Baptist High School family</p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fas fa-network-wired"></i></div>
+          <h3>Stay Connected</h3>
+          <p>Reconnect with old friends and classmates. Build new professional relationships within our alumni community.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fas fa-newspaper"></i></div>
+          <h3>Latest Updates</h3>
+          <p>Get the latest news from the school, upcoming events, and achievements of fellow alumni around the world.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fas fa-calendar-check"></i></div>
+          <h3>Exclusive Events</h3>
+          <p>Access to alumni-only events, reunions, networking sessions, and professional development workshops.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fas fa-heart"></i></div>
+          <h3>Give Back</h3>
+          <p>Support current students and school development through donations and mentorship opportunities.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fas fa-briefcase"></i></div>
+          <h3>Career Opportunities</h3>
+          <p>Access job postings, career advice, and professional networking opportunities within our community.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fas fa-trophy"></i></div>
+          <h3>Celebrate Success</h3>
+          <p>Share your achievements and celebrate the success stories of fellow alumni making a difference globally.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Statistics Section -->
+  <section class="stats" id="stats">
+    <div class="container">
+      <div class="section-title text-center">
+        <h2>Our Alumni Community</h2>
+        <p>Numbers that showcase our growing network</p>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-number" data-count="1000">0</div>
+          <div class="stat-label">Alumni Members</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" data-count="70">0</div>
+          <div class="stat-label">Years of Excellence</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" data-count="50">0</div>
+          <div class="stat-label">Countries Worldwide</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" data-count="100">0</div>
+          <div class="stat-label">Success Stories</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Recent News Section -->
+  <section class="news" id="news">
+    <div class="container">
+      <div class="section-title text-center">
+        <h2>Latest News & Updates</h2>
+        <p>Stay informed about what's happening in our community</p>
+      </div>
+
+      <div class="news-grid">
+        {% for article in news_items %}
+        <article class="news-card">
+          <div class="news-image">
+            <img src="{{ url_for('static', filename=article.image or 'images/news-placeholder.jpg') }}" alt="News Image">
+          </div>
+          <div class="news-content">
+            <div class="news-meta">
+              <span class="news-date">{{ article.date_posted.strftime('%B %d, %Y') }}</span>
+              <span class="news-category">{{ article.category or 'General' }}</span>
+            </div>
+            <h3>{{ article.title }}</h3>
+            <p>{{ article.content[:100] }}{% if article.content|length>100 %}…{% endif %}</p>
+            <a href="{{ url_for('news_detail', news_id=article.id) }}" class="read-more">
+              Read More <i class="fas fa-arrow-right"></i>
+            </a>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+
+      <div class="text-center mt-4">
+        <a href="{{ url_for('news') }}" class="btn btn-secondary btn-large">View All News</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Call to Action Section -->
+  <section class="cta-section" id="cta">
+    <div class="cta-content">
+      <div class="cta-text">
+        <h2>Ready to Reconnect?</h2>
+        <p>Join thousands of alumni who are already part of our thriving community. Register today and start connecting with your Baptist High School family.</p>
+        <div class="cta-actions">
+          <a href="{{ url_for('register') }}" class="btn btn-primary btn-large">
+            <i class="fas fa-rocket"></i> Get Started Now
+          </a>
+        </div>
+      </div>
+      <div class="cta-visual">
+        <div class="cta-stats">
+          <div class="cta-stat">
+            <span class="cta-stat-number">1000+</span>
+            <span class="cta-stat-label">Active Members</span>
+          </div>
+          <div class="cta-stat">
+            <span class="cta-stat-number">50+</span>
+            <span class="cta-stat-label">Countries</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+{% endblock %}
