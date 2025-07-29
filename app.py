@@ -45,6 +45,9 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 mail = Mail(app)
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 # Constants
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 USERS_PER_PAGE = 16  # Your requested 16 users per page
@@ -751,13 +754,24 @@ def not_found_error(error):
 #             logger.error(f"Initialization error: {str(e)}")
 
 
-# ... your existing code ...
+
 
 # Database initialization
-with app.app_context():
-    db.create_all()
+try:
+    with app.app_context():
+        db.create_all()
+        logger.info("Database tables created successfully!")
+        
+        # Check if tables exist
+        from sqlalchemy import inspect
+        inspector = inspect(db.engine)
+        tables = inspector.get_table_names()
+        logger.info(f"Tables in database: {tables}")
+        
+except Exception as e:
+    logger.error(f"Error creating database tables: {e}")
 
 
-    
 if __name__ == '__main__':
-        app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
+        
