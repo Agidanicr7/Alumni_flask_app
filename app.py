@@ -205,12 +205,17 @@ def register():
         fullname   = request.form.get('fullname')
         email      = email = request.form['email'].strip().lower()
         password   = request.form.get('password')
+        confirm_password = request.form['confirm_password']
         city       = request.form.get('city')
         country    = request.form.get('country')
         graduation_year = request.form.get('graduation_year')
         phone      = request.form.get('phone')      # ← NEW
         bio        = request.form.get('bio')        # ← NEW
         admin_code = request.form.get('admin_code')
+
+        if password != confirm_password:
+            flash("Passwords do not match.","warning")
+            return redirect(url_for('register'))
 
         if User.query.filter_by(email=email).first():
             flash("That email is already registered. Please log in or use another address.", "warning")
