@@ -92,6 +92,12 @@ class Event(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     author_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
+
+
+with app.app_context():
+    db.create_all()
+
+
 # Utility Functions
 def generate_reset_token(email):
     serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
@@ -736,22 +742,22 @@ def reset_password(token):
 def not_found_error(error):
     return render_template('404.html'), 404
 
-# @app.errorhandler(500)
-# def internal_error(error):
-#     db.session.rollback()
-#     logger.error(f'Server Error: {error}')
-#     return render_template('500.html'), 500
+@app.errorhandler(500)
+def internal_error(error):
+    db.session.rollback()
+    logger.error(f'Server Error: {error}')
+    return render_template('500.html'), 500
 
-# # Create tables and run app
-# if __name__ == '__main__':
-#     with app.app_context():
-#         try:
-#             db.create_all()
-#             # Create upload directory
-#             os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-#             logger.info("Database and upload folder initialized")
-#         except Exception as e:
-#             logger.error(f"Initialization error: {str(e)}")
+# Create tables and run app
+if __name__ == '__main__':
+    with app.app_context():
+        try:
+            db.create_all()
+            # Create upload directory
+            os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+            logger.info("Database and upload folder initialized")
+        except Exception as e:
+            logger.error(f"Initialization error: {str(e)}")
 
 
 
