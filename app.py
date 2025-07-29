@@ -94,8 +94,6 @@ class Event(db.Model):
 
 
 
-with app.app_context():
-    db.create_all()
 
 
 # Utility Functions
@@ -191,6 +189,15 @@ def home():
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.',1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+
+@app.route('/init-db')
+def init_db():
+    with app.app_context():
+        db.create_all()
+    return "Database initialized!"
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
