@@ -203,7 +203,7 @@ def init_db():
 def register():
     if request.method == 'POST':
         fullname   = request.form.get('fullname')
-        email      = request.form.get('email')
+        email      = email = request.form['email'].strip().lower()
         password   = request.form.get('password')
         city       = request.form.get('city')
         country    = request.form.get('country')
