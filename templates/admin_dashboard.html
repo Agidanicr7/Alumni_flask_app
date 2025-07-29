@@ -36,17 +36,19 @@
   <!-- Management Tabs -->
   <div class="management-tabs">
     <div class="tab-buttons">
-      <button class="tab-btn active" data-tab="users"><i class="fas fa-users"></i> Manage Alumni</button>
-      <button class="tab-btn" data-tab="news"><i class="fas fa-newspaper"></i> News</button>
-      <button class="tab-btn" data-tab="events"><i class="fas fa-calendar-alt"></i> Events</button>
+      <button class="tab-btn {{ 'active' if active_tab == 'users' else '' }}" data-tab="users"><i class="fas fa-users"></i> Manage Alumni</button>
+      <button class="tab-btn {{ 'active' if active_tab == 'news' else '' }}" data-tab="news"><i class="fas fa-newspaper"></i> News</button>
+      <button class="tab-btn {{ 'active' if active_tab == 'events' else '' }}" data-tab="events"><i class="fas fa-calendar-alt"></i> Events</button>
     </div>
 
     <!-- Users Tab -->
-    <div id="users-tab" class="tab-content active">
+    <div id="users-tab" class="tab-content {{ 'active' if active_tab == 'users' else '' }}">
       <div class="section-header">
-        <h2><i class="fas fa-users"></i> Alumni Management</h2>
+        <h2><i class="fas fa-users"></i> Alumni Management ({{ users.total }} total)</h2>
         <input type="text" id="userSearch" placeholder="Search alumni…" class="search-input">
       </div>
+      
+      {% if users.items %}
       <div class="table-container">
         <table id="usersTable">
           <thead>
@@ -60,7 +62,7 @@
             </tr>
           </thead>
           <tbody>
-            {% for user in users %}
+            {% for user in users.items %}
             <tr class="user-row">
               <td>
                 <div class="user-info">
@@ -84,14 +86,14 @@
               <td>
                 <div class="action-buttons">
                   {% if not user.is_admin %}
-                  <form method="POST" action="{{ url_for('promote_user', user_id=user.id) }}">
+                  <form method="POST" action="{{ url_for('promote_user', user_id=user.id, page=users.page) }}">
                     <button type="submit" class="btn-small btn-success">
                       <i class="fas fa-user-shield"></i> Promote
                     </button>
                   </form>
                   {% endif %}
                   {% if user.id != current_user.id %}
-                  <form method="POST" action="{{ url_for('delete_user', user_id=user.id) }}"
+                  <form method="POST" action="{{ url_for('delete_user', user_id=user.id, page=users.page) }}"
                         onsubmit="return confirm('Delete {{ user.fullname }}?')">
                     <button type="submit" class="btn-small btn-danger">
                       <i class="fas fa-trash"></i> Delete
@@ -105,72 +107,158 @@
           </tbody>
         </table>
       </div>
+
+      <!-- Pagination for Users Tab -->
+      {% if users.pages > 1 %}
+      <div class="admin-pagination">
+        <nav class="admin-pagination-nav">
+          {% if users.has_prev %}
+            <a href="{{ url_for('admin_dashboard', tab='users', page=users.prev_num) }}" 
+               class="admin-page-btn prev-btn">
+              <i class="fas fa-chevron-left"></i> Previous
+            </a>
+          {% endif %}
+
+          <div class="admin-page-numbers">
+            {% for page_num in users.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+              {% if page_num %}
+                {% if page_num != users.page %}
+                  <a href="{{ url_for('admin_dashboard', tab='users', page=page_num) }}" 
+                     class="admin-page-number">
+                    {{ page_num }}
+                  </a>
+                {% else %}
+                  <span class="admin-page-number active">{{ page_num }}</span>
+                {% endif %}
+              {% else %}
+                <span class="admin-page-dots">...</span>
+              {% endif %}
+            {% endfor %}
+          </div>
+
+          {% if users.has_next %}
+            <a href="{{ url_for('admin_dashboard', tab='users', page=users.next_num) }}" 
+               class="admin-page-btn next-btn">
+              Next <i class="fas fa-chevron-right"></i>
+            </a>
+          {% endif %}
+        </nav>
+        
+        <div class="admin-pagination-info">
+          <small class="text-muted">
+            Showing {{ users.per_page * (users.page - 1) + 1 }} to 
+            {{ users.per_page * users.page if users.page < users.pages else users.total }} 
+            of {{ users.total }} alumni
+          </small>
+        </div>
+      </div>
+      {% endif %}
+
+      {% else %}
+      <div class="no-users-message">
+        <div class="text-center p-4">
+          <i class="fas fa-users" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
+          <h4 class="text-muted">No alumni found</h4>
+          <p class="text-muted">No users have registered yet.</p>
+        </div>
+      </div>
+      {% endif %}
     </div>
 
     <!-- News Tab -->
-   <div id="news-tab" class="tab-content">
-  <h2><i class="fas fa-newspaper"></i> News Management</h2>
+    <div id="news-tab" class="tab-content {{ 'active' if active_tab == 'news' else '' }}">
+      <h2><i class="fas fa-newspaper"></i> News Management</h2>
 
-  <!-- Add News Form -->
-  <form method="POST" action="{{ url_for('post_news') }}" class="card p-3 mb-4">
-    <h4>Add News Article</h4>
-    <div class="form-group">
-      <label for="news-title">Title</label>
-      <input type="text" id="news-title" name="news_title" class="form-control" required>
+      <!-- Add News Form -->
+      <form method="POST" action="{{ url_for('post_news') }}" class="card p-3 mb-4">
+        <h4>Add News Article</h4>
+        <div class="form-group">
+          <label for="news-title">Title</label>
+          <input type="text" id="news-title" name="news_title" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label for="news-content">Content</label>
+          <textarea id="news-content" name="news_content" class="form-control" rows="4" required></textarea>
+        </div>
+        <button style="background-color: var(--primary-color);" type="submit" class="btn btn-primary mt-2">Post News</button>
+      </form>
+
+      <!-- Existing News List -->
+      {% if news %}
+        <ul class="news-list">
+          {% for item in news %}
+            <li class="news-item card mb-3">
+              <div class="news-content">
+                <h4>{{ item.title }}</h4>
+                <small class="text-muted">{{ item.created_at.strftime('%b %d, %Y') }}</small>
+                <p>{{ item.content[:150] }}{% if item.content|length > 150 %}...{% endif %}</p>
+              </div>
+              <div class="news-actions">
+                <form method="POST" action="{{ url_for('delete_news', news_id=item.id) }}" 
+                      onsubmit="return confirm('Are you sure you want to delete this news article: {{ item.title }}?')" 
+                      style="display: inline;">
+                  <button type="submit" class="btn-small btn-danger">
+                    <i class="fas fa-trash"></i> Delete
+                  </button>
+                </form>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="no-news-message">
+          <div class="text-center p-4">
+            <i class="fas fa-newspaper" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
+            <h4 class="text-muted">No news articles</h4>
+            <p class="text-muted">No news articles have been posted yet.</p>
+          </div>
+        </div>
+      {% endif %}
     </div>
-    <div class="form-group">
-      <label for="news-content">Content</label>
-      <textarea id="news-content" name="news_content" class="form-control" rows="4" required></textarea>
+
+    <!-- Events Tab -->
+    <div id="events-tab" class="tab-content {{ 'active' if active_tab == 'events' else '' }}">
+      <h2><i class="fas fa-calendar-alt"></i> Events Management</h2>
+
+      <!-- Button to go to Create Event Page -->
+      <a href="{{ url_for('create_event') }}" class="btn btn-primary mb-3">
+        <i class="fas fa-plus"></i> New Event
+      </a>
+
+      {% if events %}
+        <ul class="event-list">
+          {% for event in events %}
+            <li class="event-item card mb-3">
+              <div class="event-content">
+                <h4>{{ event.title }}</h4>
+                <small class="text-muted">{{ event.date.strftime('%b %d, %Y') }}</small>
+                <p>{{ event.description[:150] }}{% if event.description|length > 150 %}...{% endif %}</p>
+              </div>
+              <div class="event-actions">
+                <form method="POST" action="{{ url_for('delete_event', event_id=event.id) }}" 
+                      onsubmit="return confirm('Are you sure you want to delete this event: {{ event.title }}?')" 
+                      style="display: inline;">
+                  <button type="submit" class="btn-small btn-danger">
+                    <i class="fas fa-trash"></i> Delete
+                  </button>
+                </form>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="no-events-message">
+          <div class="text-center p-4">
+            <i class="fas fa-calendar-alt" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
+            <h4 class="text-muted">No events scheduled</h4>
+            <p class="text-muted">No events have been created yet.</p>
+          </div>
+        </div>
+      {% endif %}
     </div>
-    <button style="background-color: var(--primary-color);" type="submit" class="btn btn-primary mt-2">Post News</button>
-  </form>
-
-  <!-- Existing News List -->
-  {% if news %}
-    <ul class="news-list">
-      {% for item in news %}
-        <li class="news-item card mb-3">
-          <h4>{{ item.title }}</h4>
-          <small class="text-muted">{{ item.created_at.strftime('%b %d, %Y') }}</small>
-          <p>{{ item.content[:150] }}...</p>
-        </li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <p>No news articles posted yet.</p>
-  {% endif %}
-</div>
-
-<!-- Events Tab -->
-
-<div id="events-tab" class="tab-content">
-  <h2><i class="fas fa-calendar-alt"></i> Events Management</h2>
-
-  <!-- Button to go to Create Event Page -->
-  <a href="{{ url_for('create_event') }}" class="btn btn-primary mb-3">
-    <i class="fas fa-plus"></i> New Event
-  </a>
-
-  {% if events %}
-    <ul class="event-list">
-      {% for event in events %}
-        <li class="event-item card mb-3">
-          <h4>{{ event.title }}</h4>
-          <small class="text-muted">{{ event.date.strftime('%b %d, %Y') }}</small>
-          <p>{{ event.description[:150] }}...</p>
-        </li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <p>No events posted yet.</p>
-  {% endif %}
-</div>
-
- 
-  
-</div>
-
 
   </div>
 </div>
+
+
 {% endblock %}

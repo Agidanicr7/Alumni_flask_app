@@ -321,3 +321,63 @@ document.addEventListener("DOMContentLoaded", function () {
     console.error("Mobile toggle or nav links not found"); // Debug log
   }
 });
+
+// Tab functionality with URL support
+document.addEventListener("DOMContentLoaded", function () {
+  const tabButtons = document.querySelectorAll(".tab-btn");
+  const tabContents = document.querySelectorAll(".tab-content");
+
+  // Get active tab from URL or default to overview
+  const urlParams = new URLSearchParams(window.location.search);
+  const activeTab = urlParams.get("tab") || "users";
+
+  // Show active tab
+  showTab(activeTab);
+
+  tabButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const tab = button.getAttribute("data-tab");
+      showTab(tab);
+
+      // Update URL without reload
+      const newUrl = new URL(window.location);
+      newUrl.searchParams.set("tab", tab);
+      window.history.pushState({}, "", newUrl);
+    });
+  });
+
+  function showTab(tabName) {
+    // Remove active class from all buttons and contents
+    tabButtons.forEach((btn) => btn.classList.remove("active"));
+    tabContents.forEach((content) => content.classList.remove("active"));
+
+    // Add active class to selected button and content
+    const activeButton = document.querySelector(`[data-tab="${tabName}"]`);
+    const activeContent = document.getElementById(`${tabName}-tab`);
+
+    if (activeButton && activeContent) {
+      activeButton.classList.add("active");
+      activeContent.classList.add("active");
+    }
+  }
+
+  // Search functionality for users table
+  const searchInput = document.getElementById("userSearch");
+  if (searchInput) {
+    searchInput.addEventListener("input", function () {
+      const searchTerm = this.value.toLowerCase();
+      const userRows = document.querySelectorAll(".user-row");
+
+      userRows.forEach((row) => {
+        const userName = row.querySelector("strong").textContent.toLowerCase();
+        const userEmail = row.cells[1].textContent.toLowerCase();
+
+        if (userName.includes(searchTerm) || userEmail.includes(searchTerm)) {
+          row.style.display = "";
+        } else {
+          row.style.display = "none";
+        }
+      });
+    });
+  }
+});

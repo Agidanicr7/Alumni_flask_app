@@ -47,6 +47,7 @@ mail = Mail(app)
 
 # Constants
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+USERS_PER_PAGE = 16  # Your requested 16 users per page
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -298,7 +299,18 @@ def news():
 @app.route('/admin/dashboard')
 @require_admin
 def admin_dashboard():
-    users = User.query.order_by(User.created_at.desc()).all()
+    # Get pagination parameters
+    page = request.args.get('page', 1, type=int)
+    tab = request.args.get('tab', 'overview')  # Track which tab is active
+    
+    # Paginate users for the users tab
+    users_paginated = User.query.order_by(User.created_at.desc()).paginate(
+        page=page if tab == 'users' else 1,
+        per_page=USERS_PER_PAGE,
+        error_out=False
+    )
+    
+    # Get all news and events (you can paginate these too if needed)
     news = News.query.order_by(News.date_posted.desc()).all()
     events = Event.query.order_by(Event.created_at.desc()).all()
     
@@ -312,7 +324,11 @@ def admin_dashboard():
     }
     
     return render_template('admin_dashboard.html', 
-                         users=users, news=news, events=events, stats=stats)
+                         users=users_paginated, 
+                         news=news, 
+                         events=events, 
+                         stats=stats,
+                         active_tab=tab)
 
 @app.route('/admin/create_event', methods=['GET', 'POST'])
 @require_admin
@@ -436,7 +452,9 @@ def promote_user(user_id):
         logger.error(f'Error promoting user: {str(e)}')
         flash('An error occurred while promoting user.', 'error')
     
-    return redirect(url_for('admin_dashboard'))
+    # Redirect back to users tab with pagination
+    page = request.args.get('page', 1, type=int)
+    return redirect(url_for('admin_dashboard', tab='users', page=page))
 
 @app.route('/admin/delete_user/<int:user_id>', methods=['POST'])
 @require_admin
@@ -457,7 +475,9 @@ def delete_user(user_id):
         logger.error(f'Error deleting user: {str(e)}')
         flash('An error occurred while deleting user.', 'error')
     
-    return redirect(url_for('admin_dashboard'))
+    # Redirect back to users tab with pagination
+    page = request.args.get('page', 1, type=int)
+    return redirect(url_for('admin_dashboard', tab='users', page=page))
 
 @app.route('/admin/delete_news/<int:news_id>', methods=['POST'])
 @require_admin
@@ -494,7 +514,13 @@ def delete_event(event_id):
 @app.route('/admin/manage_alumni')
 @require_admin
 def manage_alumni():
-    users = User.query.order_by(User.fullname).all()
+    # Add pagination to manage alumni page
+    page = request.args.get('page', 1, type=int)
+    users = User.query.order_by(User.fullname).paginate(
+        page=page,
+        per_page=USERS_PER_PAGE,
+        error_out=False
+    )
     return render_template('manage_alumni.html', users=users)
 
 @app.route('/edit_profile', methods=['GET', 'POST'])
@@ -575,10 +601,13 @@ def change_password():
 @app.route('/search', methods=['GET'])
 @require_login
 def search():
+    # Get search parameters
     query = request.args.get('query', '').strip()
     graduation_year = request.args.get('graduation_year', '')
     location = request.args.get('location', '').strip()
+    page = request.args.get('page', 1, type=int)
     
+    # Build the query
     users_query = User.query
     
     if query:
@@ -588,13 +617,21 @@ def search():
     if location:
         users_query = users_query.filter(User.location.ilike(f'%{location}%'))
     
-    users = users_query.order_by(User.fullname).all()
+    # Paginate the results
+    users = users_query.order_by(User.fullname).paginate(
+        page=page,
+        per_page=USERS_PER_PAGE,
+        error_out=False
+    )
+    
     years = [str(year) for year in range(2014, 2026)]
     
     return render_template('search.html', 
-                         users=users, query=query, 
+                         users=users, 
+                         query=query, 
                          graduation_year=graduation_year, 
-                         location=location, years=years)
+                         location=location, 
+                         years=years)
 
 @app.route('/user/<int:user_id>')
 @require_login
@@ -606,10 +643,6 @@ def user_profile(user_id):
 @require_login
 def donate():
     return render_template('donate.html')
-
-
-
-
 
 @app.route('/forgot_password', methods=['GET', 'POST'])
 def forgot_password():
@@ -718,12 +751,3 @@ if __name__ == '__main__':
     
     if __name__ == '__main__':
         app.run(host='0.0.0.0', port=5000, debug=True)
-
-
-
-
-
-@app.errorhandler(404)
-def not_found_error(error):
-    return render_template('404.html'), 404
-
