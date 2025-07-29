@@ -749,6 +749,15 @@ def not_found_error(error):
 #             logger.info("Database and upload folder initialized")
 #         except Exception as e:
 #             logger.error(f"Initialization error: {str(e)}")
+
+
+# ... your existing code ...
+
+# Database initialization
+with app.app_context():
+    db.create_all()
+
+
     
-    if __name__ == '__main__':
+if __name__ == '__main__':
         app.run(host='0.0.0.0', port=5000, debug=True)
