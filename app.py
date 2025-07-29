@@ -694,7 +694,7 @@ Baptist High School Makurdi Alumni Association
             flash('If that email is registered, a reset link has been sent.', 'success')
     
     return render_template('forgot_password.html')
-
+app.config['DEBUG'] = True  # Add this line temporarily
 @app.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
     email = verify_reset_token(token)
@@ -727,27 +727,28 @@ def reset_password(token):
     
     return render_template('reset_password.html')
 
+
 # Error handlers
 @app.errorhandler(404)
 def not_found_error(error):
     return render_template('404.html'), 404
 
-@app.errorhandler(500)
-def internal_error(error):
-    db.session.rollback()
-    logger.error(f'Server Error: {error}')
-    return render_template('500.html'), 500
+# @app.errorhandler(500)
+# def internal_error(error):
+#     db.session.rollback()
+#     logger.error(f'Server Error: {error}')
+#     return render_template('500.html'), 500
 
-# Create tables and run app
-if __name__ == '__main__':
-    with app.app_context():
-        try:
-            db.create_all()
-            # Create upload directory
-            os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-            logger.info("Database and upload folder initialized")
-        except Exception as e:
-            logger.error(f"Initialization error: {str(e)}")
+# # Create tables and run app
+# if __name__ == '__main__':
+#     with app.app_context():
+#         try:
+#             db.create_all()
+#             # Create upload directory
+#             os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+#             logger.info("Database and upload folder initialized")
+#         except Exception as e:
+#             logger.error(f"Initialization error: {str(e)}")
     
     if __name__ == '__main__':
         app.run(host='0.0.0.0', port=5000, debug=True)
