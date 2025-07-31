@@ -21,8 +21,6 @@ from flask import (
 )
 from werkzeug.security import generate_password_hash
 
-
-
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -40,6 +38,11 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///alumni.db'
 app.config['UPLOAD_FOLDER'] = 'static/profile_pics'
 app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024  # 2MB max
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Session security configuration
+app.config['SESSION_COOKIE_SECURE'] = False  # Set to True in production with HTTPS
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
 # Initialize extensions
 db = SQLAlchemy(app)
@@ -83,7 +86,6 @@ class News(db.Model):
     author_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-
 class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(150), nullable=False)
@@ -91,10 +93,6 @@ class Event(db.Model):
     date = db.Column(db.DateTime, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     author_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-
-
-
-
 
 # Utility Functions
 def generate_reset_token(email):
@@ -141,7 +139,9 @@ def send_email(subject, recipients, body, html_body=None):
 def require_login(f):
     """Decorator to require user login"""
     def wrapper(*args, **kwargs):
-        if not session.get('user_id'):
+        user_id = session.get('user_id')
+        if not user_id:
+            logger.info(f"Access denied to {f.__name__} - no user_id in session")
             flash('Please log in to access this page.', 'error')
             return redirect(url_for('login'))
         return f(*args, **kwargs)
@@ -151,12 +151,15 @@ def require_login(f):
 def require_admin(f):
     """Decorator to require admin privileges"""
     def wrapper(*args, **kwargs):
-        if not session.get('user_id'):
+        user_id = session.get('user_id')
+        if not user_id:
+            logger.info(f"Access denied to admin {f.__name__} - no user_id in session")
             flash('Please log in to access this page.', 'error')
             return redirect(url_for('login'))
         
-        user = User.query.get(session['user_id'])
+        user = User.query.get(user_id)
         if not user or not user.is_admin:
+            logger.warning(f"Access denied to admin {f.__name__} - user {user_id} not admin")
             flash('Access denied. Admin privileges required.', 'error')
             return redirect(url_for('dashboard'))
         return f(*args, **kwargs)
@@ -186,18 +189,11 @@ def home():
         return redirect(url_for('dashboard'))
     return render_template('home.html')
 
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.',1)[1].lower() in ALLOWED_EXTENSIONS
-
-
-
 @app.route('/init-db')
 def init_db():
     with app.app_context():
         db.create_all()
     return "Database initialized!"
-
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -264,7 +260,6 @@ def register():
             flash("Registration failed. Try again.", "danger")
 
     return render_template('register.html')
-   
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -291,17 +286,42 @@ def login():
 @app.route('/dashboard')
 @require_login
 def dashboard():
-    user = User.query.get(session['user_id'])
-    recent_news = News.query.order_by(News.date_posted.desc()).limit(3).all()
-    upcoming_events = Event.query.filter(Event.date >= datetime.utcnow()).order_by(Event.date).limit(3).all()
-    return render_template('dashboard.html', user=user, recent_news=recent_news, upcoming_events=upcoming_events)
+    # Additional security check
+    user_id = session.get('user_id')
+    if not user_id:
+        logger.warning("Dashboard access - no user_id in session")
+        flash('Please log in to access this page.', 'error')
+        return redirect(url_for('login'))
+    
+    user = User.query.get(user_id)
+    if not user:
+        # User was deleted but session still exists
+        logger.warning(f"Dashboard access - user {user_id} not found in database, clearing session")
+        session.clear()
+        flash('Invalid session. Please log in again.', 'error')
+        return redirect(url_for('login'))
+    
+    try:
+        recent_news = News.query.order_by(News.date_posted.desc()).limit(3).all()
+        upcoming_events = Event.query.filter(Event.date >= datetime.utcnow()).order_by(Event.date).limit(3).all()
+        
+        logger.info(f"Dashboard loaded successfully for user: {user.email}")
+        return render_template('dashboard.html', 
+                             user=user, 
+                             recent_news=recent_news, 
+                             upcoming_events=upcoming_events)
+    except Exception as e:
+        logger.error(f'Dashboard error for user {user_id}: {str(e)}')
+        flash('An error occurred loading the dashboard.', 'error')
+        return redirect(url_for('home'))
 
 @app.route('/logout')
 def logout():
+    user_email = session.get('user', 'Unknown')
     session.clear()
+    logger.info(f"User logged out: {user_email}")
     flash('You have been logged out.', 'success')
     return redirect(url_for('home'))
-    
 
 @app.route('/news')
 @require_login
@@ -530,8 +550,6 @@ def delete_event(event_id):
     
     return redirect(url_for('admin_dashboard'))
 
-
-
 @app.route('/admin/manage_alumni')
 @require_admin
 def manage_alumni():
@@ -715,7 +733,7 @@ Baptist High School Makurdi Alumni Association
             flash('If that email is registered, a reset link has been sent.', 'success')
     
     return render_template('forgot_password.html')
-app.config['DEBUG'] = True  # Add this line temporarily
+
 @app.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
     email = verify_reset_token(token)
@@ -748,7 +766,6 @@ def reset_password(token):
     
     return render_template('reset_password.html')
 
-
 # Error handlers
 @app.errorhandler(404)
 def not_found_error(error):
@@ -771,9 +788,6 @@ if __name__ == '__main__':
         except Exception as e:
             logger.error(f"Initialization error: {str(e)}")
 
-
-
-
 # Database initialization
 try:
     with app.app_context():
@@ -788,7 +802,6 @@ try:
         
 except Exception as e:
     logger.error(f"Error creating database tables: {e}")
-
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))  # Use Render's PORT if provided

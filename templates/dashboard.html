@@ -1,39 +1,62 @@
 {% extends 'base.html' %}
 
-{% block title %}Dashboard – {{ user.fullname }}{% endblock %}
+{% block title %}
+  {% if user %}
+    Dashboard – {{ user.fullname }}
+  {% else %}
+    Dashboard
+  {% endif %}
+{% endblock %}
 
 {% block content %}
-<div class="profile-section">
-  <div class="card profile-card">
-    <!-- Profile Header -->
-    <div class="card-body text-center">
-      <img
-        src="{{ url_for('static', filename='profile_pics/' ~ user.profile_pic) }}"
-        alt="Profile picture of {{ user.fullname }}"
-        class="profile-pic mb-3"
-      >
-      <h2>{{ user.fullname }}</h2>
-    </div>
+<!-- Security check: Redirect if no user data -->
+{% if not user %}
+  <div class="alert alert-danger text-center">
+    <h4>Session Error</h4>
+    <p>Your session has expired or is invalid. Please log in again.</p>
+    <a href="{{ url_for('login') }}" class="btn btn-primary">Go to Login</a>
+  </div>
+  <script>
+    // Automatic redirect after 3 seconds
+    setTimeout(function() {
+      window.location.href = "{{ url_for('login') }}";
+    }, 3000);
+  </script>
+{% else %}
+  <!-- Your Original Dashboard Content -->
+  <div class="profile-section">
+    <div class="card profile-card">
+      <!-- Profile Header -->
+      <div class="card-body text-center">
+        <img
+          src="{{ url_for('static', filename='profile_pics/' ~ (user.profile_pic or 'default.jpg')) }}"
+          alt="Profile picture of {{ user.fullname }}"
+          class="profile-pic mb-3"
+          onerror="this.src='{{ url_for('static', filename='profile_pics/default.jpg') }}'"
+        >
+        <h2>{{ user.fullname }}</h2>
+      </div>
 
-    <!-- Profile Details -->
-    <div class="card-body">
-      <ul class="profile-list">
-        <li><strong>Email:</strong> {{ user.email }}</li>
-        <li><strong>Year of Graduation:</strong> {{ user.graduation_year or 'N/A' }}</li>
-        <li><strong>Phone:</strong> {{ user.phone or 'N/A' }}</li>
-        <li><strong>Location:</strong> {{ user.location or 'Not set' }}</li>
-        <li><strong>Bio:</strong> {{ user.bio or 'No bio set' }}</li>
-      </ul>
+      <!-- Profile Details -->
+      <div class="card-body">
+        <ul class="profile-list">
+          <li><strong>Email:</strong> {{ user.email }}</li>
+          <li><strong>Year of Graduation:</strong> {{ user.graduation_year or 'Not specified' }}</li>
+          <li><strong>Phone:</strong> {{ user.phone or 'Not provided' }}</li>
+          <li><strong>Location:</strong> {{ user.location or 'Not set' }}</li>
+          <li><strong>Bio:</strong> {{ user.bio or 'No bio set yet' }}</li>
+        </ul>
 
-      <div class="profile-actions">
-        <a href="{{ url_for('edit_profile') }}" class="btn btn-primary">
-          <i class="fas fa-edit"></i> Edit Profile
-        </a>
-        <a href="{{ url_for('change_password') }}" class="btn btn-secondary">
-          <i class="fas fa-key"></i> Change Password
-        </a>
+        <div class="profile-actions">
+          <a href="{{ url_for('edit_profile') }}" class="btn btn-primary">
+            <i class="fas fa-edit"></i> Edit Profile
+          </a>
+          <a href="{{ url_for('change_password') }}" class="btn btn-secondary">
+            <i class="fas fa-key"></i> Change Password
+          </a>
+        </div>
       </div>
     </div>
   </div>
-</div>
+{% endif %}
 {% endblock %}
