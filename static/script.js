@@ -381,3 +381,25 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 });
+
+// Handle profile picture fallback
+document.addEventListener("DOMContentLoaded", function () {
+  const profilePics = document.querySelectorAll("img[data-fallback-src]");
+  profilePics.forEach((img) => {
+    img.addEventListener("error", function () {
+      this.src = this.getAttribute("data-fallback-src");
+    });
+  });
+
+  // Handle session error redirect
+  const sessionError = document.getElementById("session-error");
+  if (sessionError) {
+    const loginUrlScript = document.getElementById("login-url");
+    if (loginUrlScript) {
+      const loginUrl = loginUrlScript.textContent;
+      setTimeout(function () {
+        window.location.href = loginUrl;
+      }, 3000);
+    }
+  }
+});
