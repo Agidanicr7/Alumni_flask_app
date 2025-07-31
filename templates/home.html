@@ -39,8 +39,8 @@
   <section class="features" id="about">
     <div class="container">
       <div class="section-title text-center">
-        <h2>Why Join Our Alumni Network?</h2>
-        <p>Discover the benefits of staying connected with your Baptist High School family</p>
+        <h2>Platform Features & Benefits</h2>
+        <p>Discover the tools and opportunities available through our alumni network platform</p>
       </div>
 
       <div class="features-grid">
@@ -78,34 +78,49 @@
     </div>
   </section>
 
-  <!-- Statistics Section -->
-  <section class="stats" id="stats">
-    <div class="container">
-      <div class="section-title text-center">
-        <h2>Our Alumni Community</h2>
-        <p>Numbers that showcase our growing network</p>
-      </div>
+  <!-- Community Highlights Section -->
+  <section class="community-highlights" id="highlights">
+  <div class="container">
+    <div class="section-title text-center">
+      <h2>Our Alumni Community</h2>
+      <p>Discover what makes our Baptist High School alumni network special</p>
+    </div>
 
-      <div class="stats-grid">
-        <div class="stat-item">
-          <div class="stat-number" data-count="1000">0</div>
-          <div class="stat-label">Alumni Members</div>
+    <div class="highlights-grid">
+      <div class="highlight-card">
+        <div class="highlight-icon">
+          <i class="fas fa-school"></i>
         </div>
-        <div class="stat-item">
-          <div class="stat-number" data-count="70">0</div>
-          <div class="stat-label">Years of Excellence</div>
+        <h3>Rich Heritage</h3>
+        <p>Building on the strong foundation and values instilled by Baptist High School Makurdi, our alumni carry forward a legacy of excellence and integrity.</p>
+      </div>
+      
+      <div class="highlight-card">
+        <div class="highlight-icon">
+          <i class="fas fa-rocket"></i>
         </div>
-        <div class="stat-item">
-          <div class="stat-number" data-count="50">0</div>
-          <div class="stat-label">Countries Worldwide</div>
+        <h3>Innovation & Growth</h3>
+        <p>Our alumni are pioneers in various fields, from technology and healthcare to education and entrepreneurship, driving positive change in their communities.</p>
+      </div>
+      
+      <div class="highlight-card">
+        <div class="highlight-icon">
+          <i class="fas fa-hands-helping"></i>
         </div>
-        <div class="stat-item">
-          <div class="stat-number" data-count="100">0</div>
-          <div class="stat-label">Success Stories</div>
+        <h3>Mutual Support</h3>
+        <p>We believe in lifting each other up. Through mentorship, collaboration, and shared resources, we help fellow alumni achieve their goals.</p>
+      </div>
+      
+      <div class="highlight-card">
+        <div class="highlight-icon">
+          <i class="fas fa-seedling"></i>
         </div>
+        <h3>Future Focused</h3>
+        <p>While honoring our past, we're committed to creating opportunities for current students and building a brighter future for our school community.</p>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
   <!-- Recent News Section -->
   <section class="news" id="news">
@@ -143,31 +158,76 @@
   </section>
 
   <!-- Call to Action Section -->
-  <section class="cta-section" id="cta">
-    <div class="cta-content">
-      <div class="cta-text">
-        <h2>Ready to Reconnect?</h2>
-        <p>Join thousands of alumni who are already part of our thriving community. Register today and start connecting with your Baptist High School family.</p>
+ <section class="enhanced-cta-section" id="cta">
+  <div class="cta-container">
+    <div class="cta-content-wrapper">
+      <div class="cta-main-content">
+        <div class="cta-badge">
+          <i class="fas fa-star"></i>
+          <span>Join Today</span>
+        </div>
+        <h2>Ready to Reconnect with Your School Family?</h2>
+        <p>Take the first step towards rebuilding those meaningful connections. Register today and discover opportunities to network, mentor, and grow with fellow Baptist High School alumni.</p>
+        
+        <div class="cta-features">
+          <div class="cta-feature">
+            <i class="fas fa-check-circle"></i>
+            <span>Free Registration</span>
+          </div>
+          <div class="cta-feature">
+            <i class="fas fa-check-circle"></i>
+            <span>Instant Access</span>
+          </div>
+          <div class="cta-feature">
+            <i class="fas fa-check-circle"></i>
+            <span>Lifetime Membership</span>
+          </div>
+        </div>
+        
         <div class="cta-actions">
           <a href="{{ url_for('register') }}" class="btn btn-primary btn-large">
-            <i class="fas fa-rocket"></i> Get Started Now
+            <i class="fas fa-user-plus"></i> Join Our Community
+          </a>
+          <a href="{{ url_for('login') }}" class="btn btn-secondary btn-large">
+            <i class="fas fa-sign-in-alt"></i> Alumni Login
           </a>
         </div>
       </div>
-      <div class="cta-visual">
-        <div class="cta-stats">
-          <div class="cta-stat">
-            <span class="cta-stat-number">1000+</span>
-            <span class="cta-stat-label">Active Members</span>
+      
+      <div class="cta-visual-content">
+        <div class="testimonial-card">
+          <div class="testimonial-content">
+            <div class="quote-icon">
+              <i class="fas fa-quote-left"></i>
+            </div>
+            <p>"Connecting with my former classmates through this platform has opened doors I never imagined. The networking opportunities are incredible!"</p>
+            <div class="testimonial-author">
+              <div class="author-info">
+                <strong>Alumni Member</strong>
+                <span>Class of 2015</span>
+              </div>
+            </div>
           </div>
-          <div class="cta-stat">
-            <span class="cta-stat-number">50+</span>
-            <span class="cta-stat-label">Countries</span>
+        </div>
+        
+        <div class="cta-benefits">
+          <div class="benefit-item">
+            <i class="fas fa-graduation-cap"></i>
+            <span>Career Growth</span>
+          </div>
+          <div class="benefit-item">
+            <i class="fas fa-network-wired"></i>
+            <span>Networking</span>
+          </div>
+          <div class="benefit-item">
+            <i class="fas fa-calendar-alt"></i>
+            <span>Events</span>
           </div>
         </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
 </div>
 {% endblock %}
