@@ -6,7 +6,7 @@
 <div class="form-section card mb-4">
   <h3><i class="fas fa-user-plus"></i> Register</h3>
 
-  <form method="POST" enctype="multipart/form-data" class="admin-form">
+<form method="POST" action="{{ url_for('register') }}" enctype="multipart/form-data" class="admin-form">
     <!-- Full Name -->
     <div class="form-group">
       <label for="fullname">Full Name</label>
