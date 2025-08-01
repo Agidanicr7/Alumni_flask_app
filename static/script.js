@@ -1,22 +1,3 @@
-// Dark mode functionality
-function toggleDarkMode() {
-  const body = document.body;
-  const modeIcon = document.getElementById("mode-icon");
-  const modeText = document.getElementById("mode-text");
-
-  body.classList.toggle("dark-mode");
-
-  if (body.classList.contains("dark-mode")) {
-    modeIcon.textContent = "☀️";
-    modeText.textContent = "Light";
-    localStorage.setItem("darkMode", "enabled");
-  } else {
-    modeIcon.textContent = "🌙";
-    modeText.textContent = "Dark";
-    localStorage.setItem("darkMode", "disabled");
-  }
-}
-
 // Check for saved dark mode preference or default to light mode
 document.addEventListener("DOMContentLoaded", () => {
   const darkMode = localStorage.getItem("darkMode");
