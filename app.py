@@ -43,6 +43,13 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SESSION_COOKIE_SECURE'] = False  # Set to True in production with HTTPS
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+# Template auto-reload configuration for development
+app.config['TEMPLATES_AUTO_RELOAD'] = True
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+
+# Development mode settings
+if os.environ.get('FLASK_ENV') == 'development' or not os.environ.get('FLASK_ENV'):
+    app.config['DEBUG'] = True
 
 # Initialize extensions
 db = SQLAlchemy(app)
@@ -53,7 +60,7 @@ logger = logging.getLogger(__name__)
 
 # Constants
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
-USERS_PER_PAGE = 16  # Your requested 16 users per page
+USERS_PER_PAGE = 10 # Your requested 10 users per page
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -550,17 +557,6 @@ def delete_event(event_id):
     
     return redirect(url_for('admin_dashboard'))
 
-@app.route('/admin/manage_alumni')
-@require_admin
-def manage_alumni():
-    # Add pagination to manage alumni page
-    page = request.args.get('page', 1, type=int)
-    users = User.query.order_by(User.fullname).paginate(
-        page=page,
-        per_page=USERS_PER_PAGE,
-        error_out=False
-    )
-    return render_template('manage_alumni.html', users=users)
 
 @app.route('/edit_profile', methods=['GET', 'POST'])
 @require_login
@@ -804,5 +800,6 @@ except Exception as e:
     logger.error(f"Error creating database tables: {e}")
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))  # Use Render's PORT if provided
-    app.run(host='0.0.0.0', port=port)
+    port = int(os.environ.get('PORT', 5000))
+    debug_mode = os.environ.get('FLASK_ENV') == 'development' or not os.environ.get('FLASK_ENV')
+    app.run(host='0.0.0.0', port=port, debug=debug_mode)

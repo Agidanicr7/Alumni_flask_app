@@ -217,91 +217,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // Enhanced Mobile Menu Functionality - Add this to your script.js
 
-document.addEventListener("DOMContentLoaded", function () {
-  // Mobile menu toggle functionality - Enhanced
-  const mobileToggle = document.getElementById("mobile-toggle");
-  const navLinks = document.getElementById("nav-links");
-  const body = document.body;
+// Mobile Menu Functionality
 
-  if (mobileToggle && navLinks) {
-    // Toggle mobile menu function
-    function toggleMobileMenu() {
-      const isActive = navLinks.classList.contains("mobile-active");
-
-      console.log("Toggle clicked, current state:", isActive); // Debug log
-
-      if (isActive) {
-        // Close menu
-        navLinks.classList.remove("mobile-active");
-        mobileToggle.classList.remove("active");
-        body.classList.remove("menu-open");
-        console.log("Menu closed"); // Debug log
-      } else {
-        // Open menu
-        navLinks.classList.add("mobile-active");
-        mobileToggle.classList.add("active");
-        body.classList.add("menu-open");
-        console.log("Menu opened"); // Debug log
-      }
-    }
-
-    // Event listeners
-    mobileToggle.addEventListener("click", function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-      toggleMobileMenu();
-    });
-
-    // Close menu when clicking on navigation links
-    document.querySelectorAll(".nav-links a").forEach((link) => {
-      link.addEventListener("click", () => {
-        navLinks.classList.remove("mobile-active");
-        mobileToggle.classList.remove("active");
-        body.classList.remove("menu-open");
-        console.log("Menu closed via link click"); // Debug log
-      });
-    });
-
-    // Close menu when clicking outside of it
-    document.addEventListener("click", function (e) {
-      if (
-        !navLinks.contains(e.target) &&
-        !mobileToggle.contains(e.target) &&
-        navLinks.classList.contains("mobile-active")
-      ) {
-        navLinks.classList.remove("mobile-active");
-        mobileToggle.classList.remove("active");
-        body.classList.remove("menu-open");
-        console.log("Menu closed via outside click"); // Debug log
-      }
-    });
-
-    // Handle escape key to close menu
-    document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape" && navLinks.classList.contains("mobile-active")) {
-        navLinks.classList.remove("mobile-active");
-        mobileToggle.classList.remove("active");
-        body.classList.remove("menu-open");
-        console.log("Menu closed via escape key"); // Debug log
-      }
-    });
-
-    // Close menu on window resize if it gets too wide
-    window.addEventListener("resize", function () {
-      if (
-        window.innerWidth > 768 &&
-        navLinks.classList.contains("mobile-active")
-      ) {
-        navLinks.classList.remove("mobile-active");
-        mobileToggle.classList.remove("active");
-        body.classList.remove("menu-open");
-        console.log("Menu closed via resize"); // Debug log
-      }
-    });
-  } else {
-    console.error("Mobile toggle or nav links not found"); // Debug log
-  }
-});
+// ...rest of your existing script.js code...
 
 // Tab functionality with URL support
 document.addEventListener("DOMContentLoaded", function () {
@@ -382,5 +300,41 @@ document.addEventListener("DOMContentLoaded", function () {
         window.location.href = loginUrl;
       }, 3000);
     }
+  }
+});
+
+/* filepath: c:\Users\X\alumni_site_fixed_v2\static\script.js */
+// Add this to your existing script.js
+document.addEventListener("DOMContentLoaded", function () {
+  const mobileToggle = document.querySelector(".mobile-menu-toggle");
+  const navLinks = document.querySelector(".nav-links");
+  const body = document.body;
+
+  if (mobileToggle && navLinks) {
+    mobileToggle.addEventListener("click", function () {
+      this.classList.toggle("active");
+      navLinks.classList.toggle("mobile-active");
+      body.style.overflow = navLinks.classList.contains("mobile-active")
+        ? "hidden"
+        : "";
+    });
+
+    // Close menu when clicking on a link
+    navLinks.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", () => {
+        mobileToggle.classList.remove("active");
+        navLinks.classList.remove("mobile-active");
+        body.style.overflow = "";
+      });
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener("click", function (e) {
+      if (!mobileToggle.contains(e.target) && !navLinks.contains(e.target)) {
+        mobileToggle.classList.remove("active");
+        navLinks.classList.remove("mobile-active");
+        body.style.overflow = "";
+      }
+    });
   }
 });

@@ -10,7 +10,7 @@
   </div>
 
   <div class="news-grid">
-    {% for item in news %}
+    {% for item in news.items %}
     <article class="news-card scroll-animate">
       <div class="news-content">
         <h3>{{ item.title }}</h3>
@@ -21,11 +21,61 @@
       <div class="news-meta" style="padding:0 1.5rem 1rem;">
         <small class="news-date">
           <i class="fas fa-calendar-alt"></i>
-          {{ item.date_posted.strftime('%B %d, %Y') }}
+          {{ item.date_posted.strftime('%B %d, %Y') }}
         </small>
       </div>
     </article>
     {% endfor %}
   </div>
+
+  <!-- Pagination Controls (inline styles only for pagination) -->
+  {% if news.pages > 1 %}
+  <div style="display: block; width: 100%; margin-top: 2rem; margin-bottom: 2rem; position: relative; z-index: 1;">
+    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.08);">
+      <div style="display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;">
+        {% if news.has_prev %}
+          <a href="{{ url_for('news', page=news.prev_num) }}"
+             style="display: inline-flex; align-items: center; padding: 8px 16px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; font-size: 14px; font-weight: 500; border: none; cursor: pointer;">
+            <i class="fas fa-chevron-left"></i> Previous
+          </a>
+        {% endif %}
+
+        <div style="display: flex; gap: 5px; align-items: center;">
+          {% for page_num in news.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+            {% if page_num %}
+              {% if page_num != news.page %}
+                <a href="{{ url_for('news', page=page_num) }}"
+                   style="display: inline-block; padding: 8px 12px; background: white; color: #007bff; text-decoration: none; border: 1px solid #dee2e6; border-radius: 4px; font-size: 14px;">
+                  {{ page_num }}
+                </a>
+              {% else %}
+                <span style="display: inline-block; padding: 8px 12px; background: #007bff; color: white; border: 1px solid #007bff; border-radius: 4px; font-size: 14px; font-weight: bold;">
+                  {{ page_num }}
+                </span>
+              {% endif %}
+            {% else %}
+              <span style="padding: 8px 4px; color: #6c757d;">...</span>
+            {% endif %}
+          {% endfor %}
+        </div>
+
+        {% if news.has_next %}
+          <a href="{{ url_for('news', page=news.next_num) }}"
+             style="display: inline-flex; align-items: center; padding: 8px 16px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; font-size: 14px; font-weight: 500; border: none; cursor: pointer;">
+            Next <i class="fas fa-chevron-right"></i>
+          </a>
+        {% endif %}
+      </div>
+      <div>
+        <small class="text-muted">
+          Showing {{ news.per_page * (news.page - 1) + 1 }} to 
+          {{ news.per_page * news.page if news.page < news.pages else news.total }} 
+          of {{ news.total }} articles
+        </small>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
 </div>
 {% endblock %}
